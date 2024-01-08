@@ -1,2 +1,16 @@
 env: "local"
-tkone_ttl :
+token_options:
+  token_refresh_ttl: 200h
+  token_access_ttl: 30m
+  token_verification_ttl: 24h
+redis:
+  redis_host: "redis"
+  redis_port: 6379
+  redis_password: ""
+mailersend_api_key: ""
+jwt_secret: "dsdfwfwrErfg5rujnns"
+hcaptcha_secret: "dfgheyklokmbbv"
+grpc:
+  port: 44044
+  timeout: 5s
+
