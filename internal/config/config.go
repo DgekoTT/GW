@@ -16,16 +16,22 @@ type tokenOptions struct {
 }
 
 type Config struct {
-	AppURL      string       `yaml:"app_url" env-required:"true"`
-	Env         string       `yaml:"env" env-default:"local"`
-	options     tokenOptions `yaml:"token_options"`
-	redisClient RedisConfig  `yaml:"redis"`
-	mailer      string       `yaml:"mailersend_api_key" env-required:"true"`
-	hcaptcha    string       `yaml:"hcaptcha_secret" env-required:"true"`
-	GRPC        GRPCConfig   `yaml:"grpc"`
+	AppURL      string         `yaml:"app_url" env-required:"true"`
+	Env         string         `yaml:"env" env-default:"local"`
+	options     tokenOptions   `yaml:"token_options"`
+	redisClient RedisConfig    `yaml:"redis"`
+	mailer      string         `yaml:"mailersend_api_key" env-required:"true"`
+	hcaptcha    string         `yaml:"hcaptcha_secret" env-required:"true"`
+	Auth        AuthGRPCConfig `yaml:"auth" env-required:"true"`
 }
 
 type GRPCConfig struct {
+	Port    int           `yaml:"port"`
+	Timeout time.Duration `yaml:"timeout"`
+}
+
+type AuthGRPCConfig struct {
+	Host    string        `yaml:"host"`
 	Port    int           `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }

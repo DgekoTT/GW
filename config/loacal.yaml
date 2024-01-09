@@ -10,6 +10,10 @@ redis:
 mailersend_api_key: ""
 jwt_secret: "dsdfwfwrErfg5rujnns"
 hcaptcha_secret: "dfgheyklokmbbv"
+auth:
+  host: "auth-service"
+  port: 44011
+  timeout: 5s
 grpc:
   port: 44044
   timeout: 5s

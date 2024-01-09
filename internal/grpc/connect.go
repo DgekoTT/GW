@@ -1,4 +1,4 @@
-package main
+package connection
 
 import (
 	"context"
@@ -12,8 +12,8 @@ import (
 const BackOffAttempts = 10
 const BackOffDuration = 2 * time.Second
 
-func connectToMicroservice(name, port string, log *slog.Logger) (*grpc.ClientConn, error) {
-	url := fmt.Sprintf("%s:%s", name, port)
+func ConnectToService(name string, port int, log *slog.Logger) (*grpc.ClientConn, error) {
+	url := fmt.Sprintf("%s:%d", name, port)
 
 	var counts uint8
 

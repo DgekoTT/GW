@@ -2,6 +2,8 @@ package gateway
 
 import (
 	"gateWay/internal/config"
+	connection "gateWay/internal/grpc"
+	"google.golang.org/grpc"
 	"log/slog"
 	"os"
 )
@@ -19,20 +21,25 @@ func main() {
 	log := setupLogger(cfg.Env)
 	_ = log
 
-	//userServiceConn, err := connectToService(os.Getenv("USER_GRPC_HOST"), os.Getenv("USER_GRPC_PORT"))
-	//if err != nil {
-	//	log.Fatalln("Error on connecting to the user-service:", err)
-	//	return
-	//}
-	//defer userServiceConn.Close()
-	//
-	//usersClient := user.NewAuthServiceClient(userServiceConn)
-	//
-	//rdb := connectToRedis(cfg.RedisConfig{
-	//	Host:     os.Getenv("REDIS_HOST"),
-	//	Port:     os.Getenv("REDIS_PORT"),
-	//	Password: os.Getenv("REDIS_PASSWORD"),
-	//})
+	userServiceConn, err := connection.ConnectToService(cfg.Auth.Host, cfg.Auth.Port, log)
+	if err != nil {
+		log.Error("Error on connecting to the Auth-service:", err)
+		return
+	}
+	defer func(userServiceConn *grpc.ClientConn) {
+		err := userServiceConn.Close()
+		if err != nil {
+			log.Warn("Unable to close connection Auth-service:", err)
+		}
+	}(userServiceConn)
+
+	usersClient := user.NewAuthServiceClient(userServiceConn)
+
+	rdb := connectToRedis(cfg.RedisConfig{
+		Host:     os.Getenv("REDIS_HOST"),
+		Port:     os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+	})
 }
 
 func setupLogger(env string) *slog.Logger {
