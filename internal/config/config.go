@@ -18,10 +18,10 @@ type tokenOptions struct {
 type Config struct {
 	AppURL      string         `yaml:"app_url" env-required:"true"`
 	Env         string         `yaml:"env" env-default:"local"`
-	options     tokenOptions   `yaml:"token_options"`
-	redisClient RedisConfig    `yaml:"redis"`
-	mailer      string         `yaml:"mailersend_api_key" env-required:"true"`
-	hcaptcha    string         `yaml:"hcaptcha_secret" env-required:"true"`
+	Options     tokenOptions   `yaml:"token_options"`
+	RedisClient *RedisConfig   `yaml:"redis"`
+	Mailer      string         `yaml:"mailersend_api_key" env-required:"true"`
+	Hcaptcha    string         `yaml:"hcaptcha_secret" env-required:"true"`
 	Auth        AuthGRPCConfig `yaml:"auth" env-required:"true"`
 }
 
@@ -38,7 +38,7 @@ type AuthGRPCConfig struct {
 
 type RedisConfig struct {
 	Host     string `yaml:"redis_host" env-required:"true"`
-	Port     string `yaml:"redis_port" env-required:"true"`
+	Port     int    `yaml:"redis_port" env-required:"true"`
 	Password string `yaml:"redis_password" env-required:"true"`
 }
 

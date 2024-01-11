@@ -3,6 +3,9 @@ package gateway
 import (
 	"gateWay/internal/config"
 	connection "gateWay/internal/grpc"
+	"gateWay/internal/mailer"
+	"gateWay/internal/storage/redis"
+	authv1 "gateWay/pkg/proto/gen/go/auth"
 	"google.golang.org/grpc"
 	"log/slog"
 	"os"
@@ -19,7 +22,6 @@ func main() {
 	cfg := config.MustLoad()
 
 	log := setupLogger(cfg.Env)
-	_ = log
 
 	userServiceConn, err := connection.ConnectToService(cfg.Auth.Host, cfg.Auth.Port, log)
 	if err != nil {
@@ -33,13 +35,13 @@ func main() {
 		}
 	}(userServiceConn)
 
-	usersClient := user.NewAuthServiceClient(userServiceConn)
+	authClient := authv1.NewAuthClient(userServiceConn)
 
-	rdb := connectToRedis(cfg.RedisConfig{
-		Host:     os.Getenv("REDIS_HOST"),
-		Port:     os.Getenv("REDIS_PORT"),
-		Password: os.Getenv("REDIS_PASSWORD"),
-	})
+	rdb := redis.ConnectToRedis(cfg.RedisClient.Host, cfg.RedisClient.Password, cfg.RedisClient.Port, log)
+
+	mailerSend := mailer.MailerSend{
+		APIKey: cfg.Hcaptcha,
+	}
 }
 
 func setupLogger(env string) *slog.Logger {
