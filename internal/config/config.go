@@ -16,7 +16,7 @@ type tokenOptions struct {
 }
 
 type Config struct {
-	AppURL      string         `yaml:"app_url" env-required:"true"`
+	HTTPServer  `yaml:"http_server"`
 	Env         string         `yaml:"env" env-default:"local"`
 	Options     tokenOptions   `yaml:"token_options"`
 	RedisClient *RedisConfig   `yaml:"redis"`
@@ -40,6 +40,12 @@ type RedisConfig struct {
 	Host     string `yaml:"redis_host" env-required:"true"`
 	Port     int    `yaml:"redis_port" env-required:"true"`
 	Password string `yaml:"redis_password" env-required:"true"`
+}
+
+type HTTPServer struct {
+	Address     string        `yaml:"address" env-default:"localhost:8080"`
+	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 
 func MustLoad() *Config {

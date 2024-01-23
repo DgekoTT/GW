@@ -1,13 +1,13 @@
-package gateway
+package main
 
 import (
 	"gateWay/internal/config"
 	connection "gateWay/internal/grpc"
-	"gateWay/internal/mailer"
-	"gateWay/internal/storage/redis"
-	authv1 "gateWay/pkg/proto/gen/go/auth"
+	"gateWay/internal/routers"
+	authv1 "github.com/DgekoTT/protos/gen/go/auth"
 	"google.golang.org/grpc"
 	"log/slog"
+	"net/http"
 	"os"
 )
 
@@ -37,11 +37,27 @@ func main() {
 
 	authClient := authv1.NewAuthClient(userServiceConn)
 
-	rdb := redis.ConnectToRedis(cfg.RedisClient.Host, cfg.RedisClient.Password, cfg.RedisClient.Port, log)
+	//
+	//rdb := redis.ConnectToRedis(cfg.RedisClient.Host, cfg.RedisClient.Password, cfg.RedisClient.Port, log)
+	//
+	//mailerSend := mailer.MailerSend{
+	//	APIKey: cfg.Hcaptcha,
+	//}
 
-	mailerSend := mailer.MailerSend{
-		APIKey: cfg.Hcaptcha,
+	router := routers.Routes(log, authClient)
+	log.Info("starting server:", slog.String("address", cfg.Address))
+	server := &http.Server{
+		Addr:              cfg.Address,
+		Handler:           router,
+		ReadHeaderTimeout: cfg.HTTPServer.Timeout,
+		WriteTimeout:      cfg.HTTPServer.Timeout,
+		IdleTimeout:       cfg.HTTPServer.IdleTimeout,
 	}
+	if err := server.ListenAndServe(); err != nil {
+		log.Error("failed to start server")
+	}
+
+	log.Error("server stopped")
 }
 
 func setupLogger(env string) *slog.Logger {
