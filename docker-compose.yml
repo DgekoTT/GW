@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  gateway-service:
+    build:
+      context: ./GW
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      CONFIG_PATH: /app/config/local.yaml
+    networks:
+      - gateway-network
+      - redis-network
+    depends_on:
+      - redis
+
+  user-service:
+    build:
+      context: ./AO
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      CONFIG_PATH: /app/config/local.yaml
+    networks:
+      - gateway-network
+      - users-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: wsde
+      POSTGRES_DB: userAuth
+    networks:
+      - users-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./AO/internal/storage/:/data
+
+  redis:
+    image: redis:6.2.7-alpine3.16
+    restart: always
+    environment:
+      REDIS_PASSWORD: FGEW%%^22566gGege
+    entrypoint: [ "/bin/sh", "-c", "redis-server --appendonly yes --requirepass $${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru" ]
+    networks:
+      - redis-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./GW/internal/storage/redis/:/data
+
+networks:
+  gateway-network:
+  redis-network:
+  users-network:
